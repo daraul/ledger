@@ -1,0 +1,26 @@
+; Tests that an account's closed balance can be asserted with *=
+; The closed balance is calculated based on the account's auxdate (or the transactions's auxdate if the posting doesn't have one).
+
+; Day one, open the ledger with $100
+2014-05-01 * Opening balance
+    Assets:Cash          100
+    Equity:Opening balance  -100 USD
+
+; Day two, the client is invoiced, and they pay on day 4
+2014-05-02=2014-05-04 * Invoice client
+    Assets:Cash          50 USD *= 100 USD
+    Income:Work         -50 USD
+
+; Day three, buy some groceries, one day before the client pays
+2014-05-03 * Invoice client
+    Expenses:Groceries   50 USD
+    Assets:Cash         -50 USD *= 50 USD
+
+test balance
+             100 USD  Assets:Cash
+            -100 USD  Equity:Opening balance
+              50 USD  Expenses:Groceries
+             -50 USD  Income:Work
+--------------------
+                   0
+end test
